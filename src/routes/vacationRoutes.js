@@ -3,5 +3,5 @@ import { Router } from "express";
 import { calcularFeriasController } from "../controllers/vacationController.js";
 const router = Router();
 
-router.post("/calcular-ferias", calcularFeriasController);
+router.post("/", calcularFeriasController);
 export default router;
