@@ -7,7 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://web-ferias.vercel.app",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
