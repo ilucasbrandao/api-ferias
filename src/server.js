@@ -5,7 +5,13 @@ import feriasRoutes from "./routes/vacationRoutes.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://web-ferias.vercel.app/",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
 // --- ROTAS DA API ---
