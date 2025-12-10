@@ -10,7 +10,11 @@ app.set("trust proxy", true);
 // CORS
 app.use(
   cors({
-    origin: ["https://web-ferias.vercel.app", "http://localhost:5173"],
+    origin: [
+      "http://127.0.0.1:5500", // Live Server
+      "http://localhost:5500", // Live Server alternativo
+      "https://web-ferias.vercel.app", // Sua produção
+    ],
     methods: "*",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
