@@ -17,19 +17,54 @@ export function calcularFeriasService({ salario, diasFerias, abono = 0 }) {
     throw new Error("Valores negativos não são permitidos.");
   }
 
-  // Valor das férias
+  // Cálculo base das férias
   const valorBase = (salarioNum / 30) * diasNum;
-
-  // 1/3 constitucional correto
   const tercoConstitucional = valorBase / 3;
-
   const valorBrutoFerias = valorBase + tercoConstitucional;
 
-  // INSS simplificado para exemplo (pode trocar por cálculo progressivo)
-  const impostoINSS = valorBrutoFerias * 0.09;
+  // INSS progressivo
+  const faixas = [
+    { limite: 1412.0, aliquota: 0.075 },
+    { limite: 2666.68, aliquota: 0.09 },
+    { limite: 4000.03, aliquota: 0.12 },
+    { limite: 7786.02, aliquota: 0.14 },
+  ];
 
-  const valorLiquidoFerias = valorBrutoFerias - impostoINSS;
+  let totalINSS = 0;
+  let baseAnterior = 0;
 
+  for (const faixa of faixas) {
+    if (valorBrutoFerias <= baseAnterior) break;
+
+    const parteDaFaixa =
+      Math.min(valorBrutoFerias, faixa.limite) - baseAnterior;
+
+    totalINSS += parteDaFaixa * faixa.aliquota;
+    baseAnterior = faixa.limite;
+  }
+
+  const valorBaseIR = valorBrutoFerias - totalINSS;
+
+  // IRPF
+  let impostoIRPF = 0;
+
+  if (valorBaseIR <= 2259.2) {
+    impostoIRPF = 0;
+  } else if (valorBaseIR <= 2826.65) {
+    impostoIRPF = valorBaseIR * 0.075 - 169.44;
+  } else if (valorBaseIR <= 3751.05) {
+    impostoIRPF = valorBaseIR * 0.15 - 381.44;
+  } else if (valorBaseIR <= 4664.68) {
+    impostoIRPF = valorBaseIR * 0.225 - 662.77;
+  } else {
+    impostoIRPF = valorBaseIR * 0.275 - 896.0;
+  }
+
+  if (impostoIRPF < 0) impostoIRPF = 0;
+
+  const valorLiquidoFerias = valorBrutoFerias - totalINSS - impostoIRPF;
+
+  // Abono pecuniário
   let dadosAbono = null;
   let valorLiquidoFinal = valorLiquidoFerias;
 
@@ -52,7 +87,8 @@ export function calcularFeriasService({ salario, diasFerias, abono = 0 }) {
     diasFerias: diasNum,
     valorBrutoFerias: Number(valorBrutoFerias.toFixed(2)),
     descontos: {
-      impostoINSS: Number(impostoINSS.toFixed(2)),
+      impostoINSS: Number(totalINSS.toFixed(2)), // CORRIGIDO
+      impostoIRPF: Number(impostoIRPF.toFixed(2)),
     },
     abono: dadosAbono,
     valorLiquidoFinal: Number(valorLiquidoFinal.toFixed(2)),
